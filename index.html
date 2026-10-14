@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maven AGI for Crexi</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;
+--purple:#B36FF7;--purple-d:#732EB8;--purple-dd:#39165C;--purple-l:#E0C1FF;--tint:#F4E7FD;--red:#F15946;--red-d:#C2230F;--teal:#4EC2AD;--teal-d:#2B786A;--blue:#6F8AF7;--orange:#F77F34;--yellow:#F7B034;--green:#70C263;
+--panel:#0A0014;--page:#FCF8FA;--card:#FFFFFF;--ink:#0A0014;--ink70:rgba(10,0,20,.72);--ink50:rgba(10,0,20,.5);--line:#E6E0EE;--line2:#D3C9E3;--soft:#F3EEF9;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--panel:#1A1230;--page:#0E0A18;--card:#17112A;--ink:#F3EEF9;--ink70:rgba(243,238,249,.74);--ink50:rgba(243,238,249,.5);--line:#2B2342;--line2:#3C3157;--soft:#1E1733;--tint:#241A3E;--purple-d:#C79BFF;--purple-dd:#E0C1FF;--red-d:#FF8B7A;}}
+:root[data-theme="dark"]{color-scheme:dark;--panel:#1A1230;--page:#0E0A18;--card:#17112A;--ink:#F3EEF9;--ink70:rgba(243,238,249,.74);--ink50:rgba(243,238,249,.5);--line:#2B2342;--line2:#3C3157;--soft:#1E1733;--tint:#241A3E;--purple-d:#C79BFF;--purple-dd:#E0C1FF;--red-d:#FF8B7A;}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(74px + env(safe-area-inset-top,0px));scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font-family:'Inter Tight',Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;letter-spacing:-0.004em}
+a{color:inherit}
+.strip{display:flex;height:10px}.strip i{display:block}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:color-mix(in srgb,var(--page) 90%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;justify-content:space-between;gap:18px;height:64px}
+.lockup{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--purple)}
+.lg-mark{height:23px;width:23px} .lg-word{height:21px;width:auto}
+nav{display:flex;gap:2px;flex-wrap:wrap}
+nav a{text-decoration:none;font-size:14px;font-weight:600;color:var(--ink70);padding:8px 12px;border-radius:999px}
+nav a:hover{background:var(--soft);color:var(--ink)}
+.pill{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--red-d);border:1.5px solid var(--red-d);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.hero{padding:60px 0 46px 0;position:relative;overflow:hidden}
+.hero .deco{position:absolute;right:28px;top:66px;width:300px;height:110px;pointer-events:none}
+.hero .deco i{position:absolute;display:block}
+.eyebrow{font-size:13.5px;font-weight:700;color:var(--purple-d);margin:0 0 10px 0}
+h1{font-size:clamp(34px,5vw,52px);font-weight:800;line-height:1.02;letter-spacing:-0.028em;margin:0 0 16px 0;max-width:780px}
+h1 .red{color:var(--red)}
+.lede{font-size:18.5px;color:var(--ink70);max-width:700px;margin:0 0 4px 0}
+section{padding:44px 0 0 0;scroll-margin-top:80px}
+.eyeb{font-size:13px;font-weight:700;color:var(--purple-d);margin:0 0 7px 0}
+h2{font-size:clamp(25px,3.4vw,36px);font-weight:800;letter-spacing:-0.026em;margin:0 0 8px 0;line-height:1.1}
+.sub{font-size:16.5px;color:var(--ink70);max-width:720px;margin:0 0 22px 0}
+.today{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.today .c{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.today .c .s{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--purple-d);margin-bottom:9px}
+.today .c .v{font-size:31px;font-weight:800;letter-spacing:-0.025em;line-height:1}
+.today .c .l{font-size:13.5px;color:var(--ink70);margin-top:8px;line-height:1.4}
+.calc{background:var(--panel);color:#FCF8FA;border-radius:16px;padding:30px 32px;margin-top:14px;position:relative;overflow:hidden;display:grid;grid-template-columns:1.05fr 1fr;gap:34px;align-items:center}
+.calc h3{margin:0 0 8px 0;font-size:22px;font-weight:800;letter-spacing:-0.02em}
+.calc p{margin:0 0 18px 0;font-size:15px;color:rgba(252,248,250,.76)}
+.calc label{display:block;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#C79BFF;margin-bottom:10px}
+.calc input[type=range]{width:100%;accent-color:#B36FF7}
+.calc .scale{display:flex;justify-content:space-between;font-size:11.5px;color:rgba(252,248,250,.55);margin-top:6px}
+.calc .big{font-size:clamp(46px,6.5vw,68px);font-weight:800;letter-spacing:-0.035em;line-height:.95;color:#C79BFF}
+.calc .cap{font-size:15px;color:rgba(252,248,250,.86);margin-top:12px;line-height:1.45}
+.calc .fine{font-size:11.5px;color:rgba(252,248,250,.5);margin-top:16px;line-height:1.45}
+.calc .deco2{position:absolute;right:-8px;bottom:-4px;width:220px;height:64px;opacity:.45}
+.calc .deco2 i{position:absolute;bottom:0;display:block}
+.cap4{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.cap4 .c{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:7px}
+.cap4 .c .k{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--purple-d)}
+.cap4 .c .k:before{content:"";width:9px;height:9px;background:var(--purple)}
+.cap4 .c h4{margin:2px 0 0 0;font-size:18px;font-weight:700;line-height:1.25;letter-spacing:-0.012em}
+.cap4 .c p{margin:0;font-size:14.5px;color:var(--ink70);line-height:1.45}
+.cap4 .c .pr{margin-top:4px;font-size:13.5px;color:var(--purple-d);font-weight:600}
+.cap4 .c .lks{margin-top:auto;padding-top:12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+.lk{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-decoration:none;padding:7px 0;border-radius:8px}
+.lk:hover .lkt{color:var(--purple-d)}
+.lkt{font-size:14px;font-weight:600}
+.lkd{grid-column:1;font-size:12.5px;color:var(--ink50);line-height:1.35}
+.lka{grid-row:1;grid-column:2;color:var(--purple-d);font-weight:700}
+.group{margin-top:26px}
+.gh{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--purple-d);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.gh span{font-weight:400;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--ink70)}
+.story{border-bottom:1px solid var(--line)}
+.shead{width:100%;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;display:grid;grid-template-columns:200px 180px 1fr 24px;gap:18px;align-items:start;padding:18px 0}
+.shead:hover{background:var(--soft)}
+.sco{font-size:17px;font-weight:700;letter-spacing:-0.012em}
+.sind{font-size:12.5px;color:var(--ink50);margin-top:2px}
+.sm .v{font-size:22px;font-weight:800;color:var(--purple-d);letter-spacing:-0.022em;line-height:1}
+.sm .l{font-size:12.5px;color:var(--ink70);margin-top:5px;line-height:1.35}
+.swhy{font-size:14.5px;color:var(--ink70);line-height:1.45}
+.sx{color:var(--purple-d);font-weight:700;font-size:18px;text-align:right}
+.sbody{display:none;padding:0 0 24px 0}
+.story.open .sbody{display:block} .story.open .shead{background:var(--soft)} .story.open .sx{}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding-left:218px}
+.sgrid h5{margin:0 0 5px 0;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--purple-d)}
+.sgrid p{margin:0;font-size:14px;color:var(--ink);line-height:1.45}
+blockquote{margin:16px 0 0 218px;padding-left:16px;border-left:3px solid var(--purple);font-size:15.5px;font-style:italic;color:var(--purple-dd);max-width:760px}
+blockquote cite{display:block;font-style:normal;font-size:13px;color:var(--ink70);margin-top:6px}
+.feat{margin:14px 0 0 218px;font-size:13.5px;color:var(--ink70)}
+.sact{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 0 218px}
+.btn{display:inline-block;background:var(--ink);color:var(--page);font-weight:700;font-size:14px;text-decoration:none;border:0;border-radius:10px;padding:11px 17px;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--purple-d);color:#fff}
+.btn.ghost{background:none;color:var(--purple-d);border:1.5px solid var(--purple-d)}
+.btn.ghost.on{background:var(--teal-d);border-color:var(--teal-d);color:#fff}
+.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tool{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;text-decoration:none;display:flex;flex-direction:column;gap:5px}
+.tool:hover{border-color:var(--purple)}
+.tool .for{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--teal-d)}
+.tool strong{font-size:16px;font-weight:700}
+.tool span:last-child{font-size:13.5px;color:var(--ink70);line-height:1.4}
+.next{background:var(--panel);color:#FCF8FA;border-radius:16px;padding:30px 32px;margin-top:16px;position:relative;overflow:hidden}
+.next h2{color:#fff;margin-bottom:6px}
+.next p.s{color:rgba(252,248,250,.75);max-width:620px;margin:0 0 22px 0;font-size:15.5px}
+.next .g{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.next .st .n{display:inline-block;background:var(--purple);color:#fff;font-weight:800;font-size:12px;width:24px;height:24px;line-height:24px;text-align:center;margin-bottom:10px}
+.next .st h4{margin:0 0 5px 0;font-size:16.5px}
+.next .st p{margin:0;font-size:14.5px;color:rgba(252,248,250,.8);line-height:1.45}
+.next .deco3{position:absolute;right:0;top:0;width:240px;height:64px;opacity:.55}
+.next .deco3 i{position:absolute;display:block}
+footer{margin:50px 0 0 0;border-top:1px solid var(--line);padding:22px 0 40px 0;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;font-size:13.5px;color:var(--ink70)}
+footer b{color:var(--ink)}
+.rl{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:50}
+.rl>button{font:inherit;font-weight:700;font-size:14px;background:var(--purple-d);color:#fff;border:0;border-radius:999px;padding:13px 19px;cursor:pointer;box-shadow:0 10px 26px rgba(57,22,92,.28)}
+.panel{position:fixed;right:20px;bottom:calc(74px + env(safe-area-inset-bottom,0px));width:350px;max-height:60vh;overflow:auto;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:18px;box-shadow:0 16px 44px rgba(10,0,20,.22);display:none;z-index:50}
+.panel.on{display:block}
+.panel h4{margin:0 0 6px 0;font-size:16px}
+.panel p.s{margin:0 0 12px 0;font-size:13px;color:var(--ink70)}
+.panel ol{margin:0;padding-left:18px;font-size:14px}
+.panel li{margin-bottom:7px}
+.panel li a{color:var(--purple-d);font-weight:600;text-decoration:none}
+.panel li button{background:none;border:0;color:var(--ink50);cursor:pointer;font-size:12px;margin-left:5px;font-family:inherit}
+.panel textarea{width:100%;font:inherit;font-size:12px;height:88px;margin-top:10px;border:1px solid var(--line2);border-radius:8px;padding:9px;background:var(--soft);color:var(--ink)}
+@media (max-width:980px){.today{grid-template-columns:1fr 1fr}.calc{grid-template-columns:1fr;gap:22px}.cap4{grid-template-columns:1fr}.shead{grid-template-columns:1fr 24px;gap:10px}.sm,.swhy{grid-column:1}.sgrid,blockquote,.sact,.feat{padding-left:0;margin-left:0}.sgrid{grid-template-columns:1fr}.tools{grid-template-columns:1fr 1fr}.next .g{grid-template-columns:1fr}nav{display:none}}
+@media (max-width:600px){.today,.tools{grid-template-columns:1fr}.hero .deco{display:none}.panel{width:calc(100vw - 40px)}}
+</style></head><body>
+<div class="strip"><i style="flex:2;background:#7089ed"></i><i style="flex:1;background:#effcfc"></i><i style="flex:2;background:#62b9a8"></i><i style="flex:1;background:#fff7ee"></i><i style="flex:4;background:#f2b03f"></i><i style="flex:1;background:#ffefee"></i><i style="flex:1;background:#eb5a48"></i><i style="flex:1;background:#f1e1f7"></i><i style="flex:5;background:#eddaf6"></i><i style="flex:1;background:#f9faf5"></i><i style="flex:2;background:#7cb971"></i><i style="flex:1;background:#ecf3ff"></i><i style="flex:7;background:#7289e7"></i><i style="flex:1;background:#faf8f9"></i><i style="flex:2;background:#f0803c"></i><i style="flex:1;background:#fff4ff"></i><i style="flex:9;background:#dcc4f8"></i><i style="flex:1;background:#fcf7fd"></i><i style="flex:3;background:#56beab"></i><i style="flex:1;background:#fbf9fa"></i><i style="flex:14;background:#b171ed"></i><i style="flex:1;background:#fff3ff"></i><i style="flex:2;background:#dec8f6"></i><i style="flex:1;background:#faf8fb"></i><i style="flex:23;background:#b175f1"></i><i style="flex:1;background:#fff0ff"></i><i style="flex:36;background:#6f37a6"></i></div>
+<header><div class="wrap hbar">
+  <a class="lockup" href="https://www.mavenagi.com/" target="_blank" rel="noopener"><svg class="lg-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="20" height="20" fill="#B36FF7" opacity="0.1"/><rect x="20" y="0" width="20" height="20" fill="#B36FF7" opacity="0.25"/><rect x="40" y="0" width="20" height="20" fill="#B36FF7" opacity="0.1"/><rect x="60" y="0" width="20" height="20" fill="#B36FF7" opacity="0.75"/><rect x="80" y="0" width="20" height="20" fill="#B36FF7" opacity="0.1"/><rect x="0" y="20" width="20" height="20" fill="#B36FF7" opacity="0.25"/><rect x="20" y="20" width="20" height="20" fill="#B36FF7" opacity="1.0"/><rect x="40" y="20" width="20" height="20" fill="#B36FF7" opacity="0.1"/><rect x="60" y="20" width="20" height="20" fill="#B36FF7" opacity="1.0"/><rect x="80" y="20" width="20" height="20" fill="#B36FF7" opacity="0.1"/><rect x="0" y="40" width="20" height="20" fill="#B36FF7" opacity="0.75"/><rect x="20" y="40" width="20" height="20" fill="#B36FF7" opacity="1.0"/><rect x="40" y="40" width="20" height="20" fill="#B36FF7" opacity="0.25"/><rect x="60" y="40" width="20" height="20" fill="#B36FF7" opacity="0.75"/><rect x="80" y="40" width="20" height="20" fill="#B36FF7" opacity="1.0"/><rect x="0" y="60" width="20" height="20" fill="#B36FF7" opacity="1.0"/><rect x="20" y="60" width="20" height="20" fill="#B36FF7" opacity="0.1"/><rect x="40" y="60" width="20" height="20" fill="#B36FF7" opacity="1.0"/><rect x="60" y="60" width="20" height="20" fill="#B36FF7" opacity="0.25"/><rect x="80" y="60" width="20" height="20" fill="#B36FF7" opacity="0.75"/><rect x="0" y="80" width="20" height="20" fill="#B36FF7" opacity="0.75"/><rect x="20" y="80" width="20" height="20" fill="#B36FF7" opacity="0.1"/><rect x="40" y="80" width="20" height="20" fill="#B36FF7" opacity="0.5"/><rect x="60" y="80" width="20" height="20" fill="#B36FF7" opacity="0.1"/><rect x="80" y="80" width="20" height="20" fill="#B36FF7" opacity="0.25"/></svg><svg class="lg-word" viewBox="0 0 468.047 100" xmlns="http://www.w3.org/2000/svg" fill="#B36FF7"><path transform="translate(0, 0.441)" d="M 82.052 0 L 71.468 0 L 50.845 71.617 L 30.443 0 L 17.377 0 L 11.366 0 L 0 0 L 0 97.992 L 17.377 97.992 L 17.377 20.584 L 39.979 97.992 L 43.249 97.992 L 57.489 97.992 L 59.45 97.992 L 82.052 19.875 L 82.052 97.992 L 101.126 97.992 L 101.126 0 L 87.802 0 L 82.052 0 Z"/><path transform="translate(106.263, 24.224)" d="M 51.677 3.004 C 47.275 0.999 41.552 0 34.493 0 C 28.047 0 22.454 1.09 17.705 3.265 C 12.954 5.445 9.231 8.49 6.532 12.412 C 3.833 16.331 2.224 21.08 1.698 26.652 L 20.117 26.652 C 20.555 24.216 21.293 22.104 22.342 20.316 C 23.387 18.532 24.892 17.158 26.85 16.201 C 28.808 15.244 31.228 14.764 34.102 14.764 C 37.935 14.764 40.915 15.395 43.053 16.66 C 45.184 17.922 46.253 19.817 46.253 22.344 C 46.253 24 45.622 25.348 44.357 26.394 C 43.093 27.439 41.179 28.308 38.61 29.007 C 36.042 29.705 32.751 30.488 28.746 31.359 C 22.214 32.662 16.811 34.276 12.545 36.193 C 8.274 38.11 5.116 40.527 3.072 43.445 C 1.022 46.362 0 50.086 0 54.613 C 0 59.319 1.066 63.218 3.202 66.308 C 5.335 69.403 8.297 71.752 12.086 73.364 C 15.875 74.973 20.253 75.778 25.218 75.778 C 30.005 75.778 34.276 74.866 38.021 73.035 C 41.596 71.288 44.456 68.866 46.644 65.81 L 46.644 74.211 L 64.412 74.211 L 64.412 24.039 C 64.412 19.163 63.387 14.939 61.34 11.369 C 59.293 7.797 56.07 5.012 51.674 3.007 L 51.677 3.004 Z M 44.686 55.395 C 43.901 56.79 42.746 57.966 41.223 58.926 C 39.698 59.883 37.956 60.581 35.995 61.017 C 34.037 61.452 31.88 61.671 29.531 61.671 C 27.181 61.671 25.173 61.343 23.518 60.688 C 21.862 60.037 20.6 59.103 19.731 57.883 C 18.858 56.662 18.425 55.223 18.425 53.57 C 18.425 51.567 18.837 49.956 19.666 48.735 C 20.495 47.515 21.864 46.514 23.784 45.731 C 25.698 44.947 28.355 44.076 31.752 43.119 C 35.585 42.162 38.589 41.223 40.769 40.308 C 42.944 39.392 44.641 38.373 45.862 37.236 L 45.862 50.696 C 45.862 52.438 45.471 54.008 44.688 55.398 L 44.686 55.395 Z"/><path transform="translate(170.229, 25.789)" d="M 53.567 0 L 36.318 52.699 L 19.072 0 L 0 0 L 24.43 72.644 L 32.271 72.644 L 39.194 72.644 L 46.905 72.644 L 71.468 0 L 53.567 0 Z"/><path transform="translate(237.025, 24.222)" d="M 53.244 4.245 C 48.149 1.416 42.115 0 35.147 0 C 28.701 0 22.821 1.481 17.51 4.441 C 12.196 7.403 7.95 11.606 4.772 17.051 C 1.588 22.495 0 29.004 0 36.581 L 0 39.846 C 0 46.733 1.46 52.871 4.381 58.271 C 7.296 63.669 11.455 67.917 16.858 71.009 C 22.256 74.102 28.657 75.648 36.063 75.648 C 42.073 75.648 47.364 74.644 51.937 72.644 C 56.511 70.639 60.276 67.632 63.239 63.627 C 66.198 59.622 68.117 54.568 68.988 48.472 L 51.087 48.472 C 50.389 52.655 48.756 55.81 46.188 57.945 C 43.619 60.081 40.245 61.147 36.063 61.147 C 32.313 61.147 29.158 60.276 26.589 58.535 C 24.018 56.793 22.037 54.375 20.647 51.283 C 19.434 48.597 18.782 45.512 18.623 42.073 L 69.119 42.073 L 69.119 35.408 C 69.119 28.005 67.747 21.666 65.004 16.396 C 62.261 11.129 58.339 7.08 53.244 4.248 L 53.244 4.245 Z M 26.72 16.527 C 29.202 15.09 32.01 14.373 35.145 14.373 C 40.545 14.373 44.511 15.875 47.038 18.881 C 48.913 21.111 50.086 24.313 50.571 28.485 L 19.207 28.485 C 19.575 26.561 20.086 24.845 20.774 23.39 C 22.256 20.253 24.237 17.966 26.72 16.529 L 26.72 16.527 Z"/><path transform="translate(311.708, 24.222)" d="M 38.675 0 C 34.928 0 31.664 0.587 28.876 1.763 C 26.089 2.939 23.737 4.529 21.823 6.532 C 20.107 8.323 18.728 10.279 17.64 12.381 L 17.64 1.565 L 0 1.565 L 0 74.209 L 18.55 74.209 L 18.55 32.923 C 18.55 30.224 18.9 27.784 19.596 25.604 C 20.292 23.429 21.293 21.598 22.602 20.117 C 23.906 18.639 25.429 17.505 27.173 16.72 C 28.915 15.935 30.92 15.544 33.186 15.544 C 35.711 15.544 37.888 16.091 39.718 17.176 C 41.546 18.266 42.92 19.771 43.833 21.684 C 44.748 23.601 45.205 25.823 45.205 28.349 L 45.205 74.209 L 63.757 74.209 L 63.757 25.997 C 63.757 17.721 61.578 11.319 57.223 6.793 C 52.868 2.266 46.683 0 38.67 0 L 38.675 0 Z"/><path transform="translate(382.84, 0.469)" d="M 21.883 0 L 13.411 0 L 0 38.986 L 8.576 38.986 L 11.538 30.305 L 25.377 30.305 L 28.329 38.986 L 37.893 38.986 L 24.482 0 L 21.883 0 Z M 14.094 22.819 L 18.472 9.992 L 22.832 22.819 L 14.094 22.819 Z"/><path transform="translate(419.116, 0)" d="M 25.883 18.037 L 18.19 18.037 L 18.19 25.885 L 25.864 25.885 C 25.841 26.806 25.684 27.651 25.364 28.407 C 25.017 29.22 24.524 29.896 23.883 30.435 C 23.241 30.97 22.48 31.387 21.596 31.682 C 20.712 31.977 19.716 32.125 18.605 32.125 C 16.699 32.125 15.069 31.716 13.721 30.902 C 12.368 30.091 11.345 28.847 10.652 27.186 C 9.958 25.52 9.614 23.426 9.614 20.897 L 9.614 19.338 C 9.614 16.772 9.943 14.641 10.602 12.941 C 11.259 11.246 12.232 9.979 13.512 9.147 C 14.795 8.316 16.321 7.901 18.089 7.901 C 19.16 7.901 20.123 8.039 20.973 8.316 C 21.823 8.592 22.558 9.007 23.184 9.562 C 23.807 10.117 24.31 10.795 24.691 11.591 C 25.072 12.386 25.299 13.304 25.366 14.347 L 34.827 14.347 C 34.722 11.747 34.203 9.546 33.267 7.744 C 32.334 5.943 31.093 4.462 29.549 3.301 C 28.008 2.141 26.256 1.299 24.3 0.78 C 22.342 0.261 20.271 0 18.089 0 C 15.627 0 13.296 0.409 11.098 1.22 C 8.897 2.037 6.965 3.249 5.301 4.86 C 3.638 6.472 2.339 8.498 1.403 10.944 C 0.469 13.385 0 16.253 0 19.546 L 0 20.378 C 0 23.567 0.425 26.381 1.272 28.827 C 2.123 31.27 3.306 33.325 4.832 34.986 C 6.357 36.652 8.185 37.906 10.315 38.756 C 12.448 39.606 14.759 40.029 17.254 40.029 C 19.75 40.029 21.932 39.63 23.804 38.834 C 25.598 38.07 27.048 36.855 28.172 35.215 L 29.52 39.458 L 34.926 39.458 L 34.926 18.037 L 25.883 18.037 Z"/><path transform="translate(458.535, 0.469)" d="M 9.51 0 L 0 0 L 0 38.986 L 9.51 38.986 L 9.51 0 Z"/></svg></a>
+  <nav><a href="#today">Today</a><a href="#what">What Maven does</a><a href="#proof">Proof</a><a href="#evaluate">For your evaluation</a><a href="#next">Next steps</a></nav>
+  <span class="pill">Prepared for Crexi</span>
+</div></header>
+
+<main class="wrap">
+<div class="hero">
+  <div class="deco"><i style="right:220px;top:8px;width:10px;height:10px;background:var(--teal)"></i><i style="right:192px;top:0;width:14px;height:14px;background:var(--blue)"></i><i style="right:162px;top:14px;width:12px;height:12px;background:var(--orange)"></i><i style="right:128px;top:0;width:18px;height:18px;background:var(--purple-l)"></i><i style="right:90px;top:6px;width:24px;height:24px;background:var(--purple)"></i><i style="right:48px;top:0;width:32px;height:38px;background:var(--purple-d)"></i><i style="right:0;top:0;width:42px;height:28px;background:var(--purple)"></i><i style="right:0;top:28px;width:70px;height:24px;background:var(--purple-d)"></i><i style="right:0;top:52px;width:34px;height:16px;background:var(--purple-l)"></i></div>
+  <div class="eyebrow">For the Crexi leadership team &middot; October 2026</div>
+  <h1>Every call answered. Every email triaged.<br><span class="red">Before the team gets smaller.</span></h1>
+  <p class="lede">A single place to look through everything: where Crexi's support volume sits today, what an AI agent that answers the phone and works inside Salesforce would change, and the public evidence from companies that have already done it.</p>
+</div>
+
+<section id="today">
+  <div class="eyeb">Where Crexi is today</div>
+  <h2>The volume isn't the problem. The hours are.</h2>
+  <p class="sub">These are the numbers your support team shared with us in September, turned into a year.</p>
+  <div class="today">
+    <div class="c"><div class="s">Voice</div><div class="v">48,000</div><div class="l">calls a year. The ones arriving after 5pm, at weekends and on holidays reach voicemail, and Monday starts with the backlog.</div></div>
+    <div class="c"><div class="s">Email</div><div class="v">48,000</div><div class="l">emails a year through Salesforce email to case, with no automation. Around 12,000 are junk a person opens and closes by hand.</div></div>
+    <div class="c"><div class="s">Chat</div><div class="v">25%</div><div class="l">of chats HubSpot's bot can't finish: account lookups, cancellations, and anyone who asks for a human.</div></div>
+    <div class="c"><div class="s">The team</div><div class="v">5 &rarr; 2</div><div class="l">onshore agents by early 2027, with 11 offshore. The same volume, fewer people, and callers who ask for someone in the US.</div></div>
+  </div>
+  <div class="calc">
+    <div class="deco2"><i style="right:162px;width:12px;height:12px;background:var(--teal)"></i><i style="right:134px;width:16px;height:20px;background:var(--blue)"></i><i style="right:104px;width:14px;height:12px;background:var(--orange)"></i><i style="right:72px;width:22px;height:30px;background:var(--purple-l)"></i><i style="right:38px;width:28px;height:44px;background:var(--purple)"></i><i style="right:0;width:34px;height:58px;background:var(--purple-d)"></i></div>
+    <div>
+      <h3>What does closing the phones cost you?</h3>
+      <p>We don't know what share of Crexi's calls land outside business hours, so set it yourself. Everything else comes from the 4,000 calls a month your team gave us.</p>
+      <label for="pct">Calls arriving after hours, at weekends or on holidays: <span id="pctv" style="color:#fff">35%</span></label>
+      <input id="pct" type="range" min="5" max="70" value="35" step="1">
+      <div class="scale"><span>5%</span><span>35%</span><span>70%</span></div>
+      <div class="fine">Arithmetic on your own volume, not a Maven estimate. Move the slider to whatever your call data says and the numbers follow.</div>
+    </div>
+    <div>
+      <div class="big" id="calls">16,800</div>
+      <div class="cap">calls a year reaching voicemail instead of a person. That's <strong id="week">323</strong> a week, and <strong id="day">46</strong> on every day you're closed.</div>
+      <div class="cap" style="color:#C79BFF">On a marketplace, a share of those are buyers calling about a listing. Today they wait until Monday, or they don't call back.</div>
+    </div>
+  </div>
+</section>
+
+<section id="what">
+  <div class="eyeb">What Maven does about it</div>
+  <h2>One agent, on the phone and in Salesforce, with your rules.</h2>
+  <p class="sub">Not a bot that answers a question and hands off. An agent that takes the call, looks up the listing, makes the change, and knows when to put a person in front of the customer. Each card links to the product pages behind it.</p>
+  <div class="cap4">
+    <div class="c"><div class="k">24/7 voice</div><h4>The phone is never closed</h4><p>Answers on your existing Zoom numbers in a natural voice the caller can interrupt. Identifies the account, explains how a listing got there, books the CSM callback, takes a buyer's details for the broker.</p><div class="pr">Nobody reaches voicemail again</div><div class="lks"><a class="lk" href="https://www.mavenagi.com/product/maven-voice" target="_blank" rel="noopener"><span class="lkt">Maven Voice</span><span class="lkd">Real time voice AI that answers the call, handles interruptions and accents naturally, and resolves the issue on the call. Runs on the telephony you already have.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/use-cases/churn-prevention-retention-agent" target="_blank" rel="noopener"><span class="lkt">Churn prevention agent</span><span class="lkd">Cancellation intent detection and a handoff to a named person with context. The pattern Crexi saw in the voice demo.</span><span class="lka">&#8599;</span></a></div></div>
+    <div class="c"><div class="k">Email and Copilot</div><h4>Triage disappears</h4><p>Junk closed automatically with the reason written to the case. Routine requests resolved end to end. Owner and record type set when a CSM is needed, and Copilot drafts the reply inside the Salesforce case view.</p><div class="pr">~12,000 junk emails a year nobody opens</div><div class="lks"><a class="lk" href="https://www.mavenagi.com/integrations/salesforce" target="_blank" rel="noopener"><span class="lkt">Salesforce integration</span><span class="lkd">Reads and writes cases, contacts and custom objects. Approved actions can update fields, create tasks, escalate to queues and trigger Flows. Salesforce stays the system of record.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/use-cases/agent-copilot" target="_blank" rel="noopener"><span class="lkt">Agent Copilot</span><span class="lkd">AI beside your team inside Salesforce. Drafts replies, surfaces the right answer, summarizes context so reps stop searching and start resolving.</span><span class="lka">&#8599;</span></a></div></div>
+    <div class="c"><div class="k">Actions</div><h4>It does the work, not just the talking</h4><p>Finds all three listings and removes the broker. Updates the owner. Sends the scheduling link. With a confirmation step wherever you want one, and fully automatic where you don't.</p><div class="pr">Same day, instead of a queue</div><div class="lks"><a class="lk" href="https://www.mavenagi.com/product/agent-platform" target="_blank" rel="noopener"><span class="lkt">AI Agent Platform</span><span class="lkd">The reasoning engine that connects systems, knowledge and actions across every channel.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/features/agent-channels" target="_blank" rel="noopener"><span class="lkt">Channels</span><span class="lkd">Chat, email, voice, help center, messaging and Copilot on one agent with one set of rules.</span><span class="lka">&#8599;</span></a></div></div>
+    <div class="c"><div class="k">Control and visibility</div><h4>Your rules, written in plain English</h4><p>Charters decide what the agent may do for each kind of customer: cancellations always reach a named CSM, enterprise accounts always reach a person. Every conversation is logged with its reasoning and the action taken.</p><div class="pr">Written by your leads, not by engineers</div><div class="lks"><a class="lk" href="https://www.mavenagi.com/product/agent-designer" target="_blank" rel="noopener"><span class="lkt">Agent Designer</span><span class="lkd">Where support leads tune behaviour, write Charters in plain English, test against real scenarios and validate before a customer ever sees it.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/features/data-insights" target="_blank" rel="noopener"><span class="lkt">Data &amp; Insights</span><span class="lkd">Resolution, escalation and sentiment, plus the Intelligent Fields that classify every conversation (junk, listing change, churn risk).</span><span class="lka">&#8599;</span></a></div></div>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="eyeb">The proof</div>
+  <h2>Companies that have already done this.</h2>
+  <p class="sub">Thirteen published customer stories, grouped by the part of Crexi's situation they speak to. Open one to see what they needed, what Maven did and what happened. Every link is public on mavenagi.com.</p>
+
+  <div class="group"><div class="gh">Marketplaces and around the clock <span>Two sided demand that doesn't respect business hours</span></div>
+  <article class="story" data-co="Thumbtack">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Thumbtack</div><div class="sind">Marketplace</div></div>
+    <div class="sm"><div class="v">15%+</div><div class="l">higher CSAT than every vendor tested</div></div>
+    <div class="swhy">A two sided marketplace whose VP of Commercial Operations ran a six month evaluation of 50+ vendors, then a head to head on real customer data. The closest public parallel to what Crexi is doing now.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Debunk the bad reputation of chatbots and give customers accessible, effective support 24/7 without a human on every question.</p></div>
+      <div><h5>What Maven did</h5><p>Ran a head to head against the top players in the space on live customer conversations.</p></div>
+      <div><h5>What happened</h5><p>Maven scored 15%+ higher on CSAT than every vendor tested and was chosen across support, success and sales.</p></div>
+    </div>
+    <blockquote>&ldquo;When we put Maven's AI agents head to head with the top players in the space, the tool consistently delivered the most human like and effective customer experiences while resolving issues faster.&rdquo;<cite>Lin Zhao, VP of Commercial Operations</cite></blockquote>
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/thumbtack" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/thumbtack" data-label="Thumbtack: 15%+ higher CSAT than every vendor tested">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="Roo">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Roo</div><div class="sind">Marketplace (veterinary staffing)</div></div>
+    <div class="sm"><div class="v">50%</div><div class="l">reduction in ticket volume</div></div>
+    <div class="swhy">A two sided marketplace serving hospitals and vets around the clock, with a strict brand voice. Maven only uses approved language and terminology.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Premium support for hospitals and vets 24/7, self serve options, and a smaller queue, from a vendor that could grow with the business.</p></div>
+      <div><h5>What Maven did</h5><p>Vetted three solutions. Deployed Agent Maven on chat, matched to Roo's friendly tone and approved terminology.</p></div>
+      <div><h5>What happened</h5><p>50% reduction in ticket volume and 80% of inquiries answered autonomously. Next: user specific tasks like cancelling or adjusting shifts.</p></div>
+    </div>
+    <p class="feat">Featured: Tara, Support lead</p>
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/roo" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/roo" data-label="Roo: 50% reduction in ticket volume">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="Belfry">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Belfry</div><div class="sind">Security workforce software</div></div>
+    <div class="sm"><div class="v">72%</div><div class="l">inquiry resolution rate, 25% fully deflected</div></div>
+    <div class="swhy">Tickets doubled in six months and customers were waiting until business hours for answers. Belfry solved it with 24/7 chat instead of headcount, the same trade Crexi is weighing on voice.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Round the clock chat support without adding payroll, after tickets doubled in six months and users submitted inquiries 24/7.</p></div>
+      <div><h5>What Maven did</h5><p>Set a three item vendor checklist (use our existing help documentation, meet rigorous security and compliance standards, report transparently) and deployed Agent Maven as an in platform chat persona.</p></div>
+      <div><h5>What happened</h5><p>72% inquiry resolution rate and 25% of inquiries fully deflected away from the support team.</p></div>
+    </div>
+    <blockquote>&ldquo;If you're a CX leader looking to scale responsibly, you can't go wrong with Agent Maven. The chat persona is so much more than an efficiency lever; it's the centerpiece of all our post sales communications.&rdquo;<cite>Alex Turkovic, Senior Director of Customer Experience</cite></blockquote>
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/belfrys" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/belfrys" data-label="Belfry: 72% inquiry resolution rate, 25% fully deflected">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="Check">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Check</div><div class="sind">Payroll</div></div>
+    <div class="sm"><div class="v">85%</div><div class="l">accuracy rate on payroll inquiries</div></div>
+    <div class="swhy">Three non negotiables worth borrowing: answer 24/7, minimal hallucinations under strict compliance, and escalate to a human when confidence is low.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Autonomous answers to high stakes payroll questions ahead of the year end rush, with 24/7 coverage, strict compliance and a clean escalation path.</p></div>
+      <div><h5>What Maven did</h5><p>Demoed several platforms, then deployed Agent Maven integrated with Check's knowledge.</p></div>
+      <div><h5>What happened</h5><p>85% accuracy rate on questions from bonuses and W2s to direct deposit.</p></div>
+    </div>
+    <blockquote>&ldquo;Payroll support is such a sensitive space, and Maven's ability to learn it has been huge. Their AI chat agent has become an important payroll resource for our customers.&rdquo;<cite>Jim Kohl, Head of Service Delivery</cite></blockquote>
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/check" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/check" data-label="Check: 85% accuracy rate on payroll inquiries">+ Add to reading list</button></div>
+  </div>
+</article></div>
+
+  <div class="group"><div class="gh">Inside Salesforce, and real estate <span>Copilot where your team already works</span></div>
+  <article class="story" data-co="Clio">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Clio</div><div class="sind">Legal software</div></div>
+    <div class="sm"><div class="v">60% more</div><div class="l">tickets resolved autonomously</div></div>
+    <div class="swhy">The deepest public example of Maven inside Salesforce, which is where Crexi's team works. Escalations go to live reps through Salesforce Messaging with history attached.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Replace a legacy chatbot that could not scale with larger, multi product customers. Had to integrate deeply with Salesforce and improve iteratively.</p></div>
+      <div><h5>What Maven did</h5><p>Stress tested 10+ vendors. Maven's implementation engineers built a rich Salesforce integration during a six week onboarding and trained the agent on Clio's brand voice and knowledge base. Rolled out to pilot customers first.</p></div>
+      <div><h5>What happened</h5><p>60% more tickets resolved autonomously. The agent handles the vast majority of chat and escalates anything it cannot answer with 99% confidence to a live rep via Salesforce Messaging. Now expanding into success, sales and education.</p></div>
+    </div>
+    <p class="feat">Featured: Brandon Cheng, GTM Applications</p>
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/clio" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/clio" data-label="Clio: 60% more tickets resolved autonomously">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="Enumerate">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Enumerate</div><div class="sind">PropTech</div></div>
+    <div class="sm"><div class="v">91%</div><div class="l">resolution rate on 3,000 monthly tickets</div></div>
+    <div class="swhy">Property management software, and the same path Crexi is weighing: Copilot for phone and email first, then a 24/7 chat agent for in app requests.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Scale a team handling 3,000+ tickets a month without losing the human touch. Wanted a research agent for phone and email plus 24/7 chat for Tier 0 requests.</p></div>
+      <div><h5>What Maven did</h5><p>Deployed Copilot in the help desk to populate every ticket with context and a suggested response, then launched Agent Maven (internally Enumerate Assist) in app.</p></div>
+      <div><h5>What happened</h5><p>91% resolution rate, 24/7 knowledge access and streamlined workflows across phone, email and chat.</p></div>
+    </div>
+    
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/enumerate" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/enumerate" data-label="Enumerate: 91% resolution rate on 3,000 monthly tickets">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="Rho">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Rho</div><div class="sind">Fintech</div></div>
+    <div class="sm"><div class="v">95%</div><div class="l">CSAT with 12% more contacts, no new hires</div></div>
+    <div class="swhy">The Copilot story. Rho runs it natively in Zendesk; for Crexi it would be the Salesforce case view. Same idea: the agent drafts and surfaces context so a flat team absorbs more volume.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Improve the support team's ability to deliver customer delight without adding headcount, and free agents from routine work for high complexity investigations.</p></div>
+      <div><h5>What Maven did</h5><p>Implemented Maven's help desk native Copilot for context rich, real time answers and summaries.</p></div>
+      <div><h5>What happened</h5><p>95% CSAT maintained while supporting a 12% increase in monthly contacts with no new headcount. Employees across departments also use Maven for ongoing education.</p></div>
+    </div>
+    <blockquote>&ldquo;The accuracy and speed with which Maven answered fairly complicated technical questions made it impossible for me to look away. Everything else I saw wasn't quite ready for prime time.&rdquo;<cite>Stas Johnson-Chyzhykov, SVP Customer Experience</cite></blockquote>
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/rho" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/rho" data-label="Rho: 95% CSAT with 12% more contacts, no new hires">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="Digital.ai">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Digital.ai</div><div class="sind">Enterprise software</div></div>
+    <div class="sm"><div class="v">6 to 1</div><div class="l">knowledge bases searched as one</div></div>
+    <div class="swhy">Proved it internally first, then went customer facing. A phased path Crexi could follow: Copilot for the team, then the agent for customers.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Six product lines from six acquisitions meant six knowledge bases. Every ticket started with which system do I search first.</p></div>
+      <div><h5>What Maven did</h5><p>Brought Maven in during 2024 as an internal copilot inside Zendesk, searching all six knowledge bases at once, starting with a subset of product lines.</p></div>
+      <div><h5>What happened</h5><p>It held up, Digital.ai renewed for a second year, and in February 2026 switched on a customer facing agent across half a dozen segments of the support business.</p></div>
+    </div>
+    <p class="feat">Featured: Manfred Kunze, VP of Global Customer Support</p>
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/digital-ai" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/digital-ai" data-label="Digital.ai: 6 to 1 knowledge bases searched as one">+ Add to reading list</button></div>
+  </div>
+</article></div>
+
+  <div class="group"><div class="gh">More volume, same team <span>What happens when headcount doesn't follow demand</span></div>
+  <article class="story" data-co="Mastermind">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Mastermind</div><div class="sind">Online learning</div></div>
+    <div class="sm"><div class="v">93%</div><div class="l">of live chat answered, live in six weeks</div></div>
+    <div class="swhy">Volume went up, the team stayed flat. A six week go live across chat and email, which is the shape of Crexi's Phase 1.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Absorb a seasonal surge supporting 1M attendees without new hires, while keeping humans on nuanced situations.</p></div>
+      <div><h5>What Maven did</h5><p>Deployed Maven across website support, live chat and email assistance. Fully operational in six weeks.</p></div>
+      <div><h5>What happened</h5><p>93% of live chat questions answered by Agent Maven, 68% of support page inquiries resolved autonomously, 75% faster responses while handling 60% more contacts, zero new hires.</p></div>
+    </div>
+    
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/mastermind" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/mastermind" data-label="Mastermind: 93% of live chat answered, live in six weeks">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="ClickUp">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">ClickUp</div><div class="sind">B2B SaaS</div></div>
+    <div class="sm"><div class="v">25%</div><div class="l">reduction in ticket volume from self serve</div></div>
+    <div class="swhy">Copilot living inside the ticketing system, which is exactly how Crexi's agents would use it in the Salesforce case view.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>A high volume of complex inquiries across a broad product, straining a tiered support team and crowding out proactive work.</p></div>
+      <div><h5>What Maven did</h5><p>Deployed Maven Copilot and Insights to streamline ticket triage and speed up responses.</p></div>
+      <div><h5>What happened</h5><p>25% reduction in ticket volume from self serve, reduced onboarding time for new support agents, and more capacity for proactive engagement.</p></div>
+    </div>
+    <blockquote>&ldquo;Maven is right in our ticketing system and is the first thing reps look at now when opening a ticket.&rdquo;<cite>David Doyle, Head of Customer Support</cite></blockquote>
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/clickup" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/clickup" data-label="ClickUp: 25% reduction in ticket volume from self serve">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="K1x">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">K1x</div><div class="sind">Tax software</div></div>
+    <div class="sm"><div class="v">80%</div><div class="l">of tickets resolved, 10x the prior AI agent</div></div>
+    <div class="swhy">Fastest published go live. Built on an existing 350 article help center, which is how Maven would start with Crexi's Learn Center.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Support that scales with 60% year over year growth. A prior AI agent was underperforming.</p></div>
+      <div><h5>What Maven did</h5><p>Integrated in one week by syncing 350+ help center articles.</p></div>
+      <div><h5>What happened</h5><p>80% of tickets resolved by Agent Maven, almost always under three minutes. 10x more tickets solved vs the prior agent, 6x improvement in resolution rate, NPS +40.</p></div>
+    </div>
+    <blockquote>&ldquo;Maven is all functional, not theoretical. They offered a real solution to our problems and proved it to us in real time.&rdquo;<cite>Dennis Dube, SVP of RevOps</cite></blockquote>
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/k1x" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/k1x" data-label="K1x: 80% of tickets resolved, 10x the prior AI agent">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="Papaya Pay">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Papaya Pay</div><div class="sind">Fintech</div></div>
+    <div class="sm"><div class="v">90%</div><div class="l">answered autonomously, 50% lower cost per ticket</div></div>
+    <div class="swhy">The clearest published cost per ticket result, useful for Crexi's own cost comparison.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Handle growing inquiry volume in app without growing cost.</p></div>
+      <div><h5>What Maven did</h5><p>Deployed Agent Maven on in app chat.</p></div>
+      <div><h5>What happened</h5><p>90% of inquiries answered autonomously, 70% first contact resolution, 50% lower cost per ticket.</p></div>
+    </div>
+    
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/papaya" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/papaya" data-label="Papaya Pay: 90% answered autonomously, 50% lower cost per ticket">+ Add to reading list</button></div>
+  </div>
+</article><article class="story" data-co="Quest Software">
+  <button class="shead" aria-expanded="false">
+    <div class="sl"><div class="sco">Quest Software</div><div class="sind">Enterprise IT software</div></div>
+    <div class="sm"><div class="v">~50%</div><div class="l">autonomous resolution, up from a 30% starting goal</div></div>
+    <div class="swhy">Quest measured the agent on whether customers were glad they used it, not on deflection. That is the standard Crexi's enterprise and paid tiers would hold it to.</div>
+    <span class="sx">+</span>
+  </button>
+  <div class="sbody">
+    <div class="sgrid">
+      <div><h5>What they needed</h5><p>Prove that every AI interaction would meet Quest's customer satisfaction standard before expanding scope.</p></div>
+      <div><h5>What Maven did</h5><p>Deployed AskQ, a branded agent built on Maven, against an initial 30% deflection goal in the first 12 months.</p></div>
+      <div><h5>What happened</h5><p>Scaled from the 30% starting goal to roughly 50% autonomous resolution, with 21k+ new cases scoped for Phase II and four expanded workstreams.</p></div>
+    </div>
+    
+    <div class="sact"><a class="btn" href="https://www.mavenagi.com/customer-stories/quest" target="_blank" rel="noopener">Read the full story &#8599;</a><button class="btn ghost" data-save="https://www.mavenagi.com/customer-stories/quest" data-label="Quest Software: ~50% autonomous resolution, up from a 30% starting goal">+ Add to reading list</button></div>
+  </div>
+</article></div>
+</section>
+
+<section id="evaluate">
+  <div class="eyeb">For your evaluation</div>
+  <h2>Reading for whoever is doing the diligence.</h2>
+  <p class="sub">Buyer guides, benchmarks and the definitions that matter when you compare vendors.</p>
+  <div class="cap4">
+    <div class="c"><div class="k">Comparing vendors</div><div class="lks" style="border-top:0;padding-top:0"><a class="lk" href="https://www.mavenagi.com/blog/ai-voice-agents-customer-service" target="_blank" rel="noopener"><span class="lkt">Best AI voice agents for customer service in 2026</span><span class="lkd">How to evaluate voice AI, what resolution means on a call, and why timelines vary.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/blog/ai-customer-service-software-online-marketplaces" target="_blank" rel="noopener"><span class="lkt">Best AI customer service software for online marketplaces</span><span class="lkd">Why marketplaces need voice, overlay on the helpdesk you have, no data migration.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/blog/sierra-vs-intercom-fin-vs-maven-agi" target="_blank" rel="noopener"><span class="lkt">Sierra vs. Intercom Fin vs. Maven AGI</span><span class="lkd">A side by side on resolution, actions, channels and deployment speed.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/blog/salesforce-agentforce-reviews" target="_blank" rel="noopener"><span class="lkt">Salesforce Agentforce reviews</span><span class="lkd">Where Agentforce fits, where it stops, and how Maven works alongside an existing Salesforce environment.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/blog/ai-customer-service-software-large-enterprises" target="_blank" rel="noopener"><span class="lkt">Best AI customer service software for large enterprises</span><span class="lkd">Deployment timelines from one to six weeks and language coverage (57 voice languages).</span><span class="lka">&#8599;</span></a></div></div>
+    <div class="c"><div class="k">Numbers and definitions</div><div class="lks" style="border-top:0;padding-top:0"><a class="lk" href="https://www.mavenagi.com/glossary/resolution-rate" target="_blank" rel="noopener"><span class="lkt">What is resolution rate?</span><span class="lkd">Resolution vs deflection. Maven only counts a resolution when the problem is solved. This is the metric Crexi would be billed on.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/blog/cost-per-ticket-statistics-customer-support" target="_blank" rel="noopener"><span class="lkt">15 cost per ticket statistics</span><span class="lkd">Benchmarks for cost to serve, plus Papaya Pay's 50% lower cost per ticket.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/blog/customer-support-ticket-resolution-statistics" target="_blank" rel="noopener"><span class="lkt">32 ticket resolution statistics</span><span class="lkd">Autonomous resolution benchmarks across Maven customers and the industry.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/blog/customer-wait-time-statistics" target="_blank" rel="noopener"><span class="lkt">15 customer wait time statistics</span><span class="lkd">What waiting costs, and how Mastermind cut response time 75% at peak.</span><span class="lka">&#8599;</span></a><a class="lk" href="https://www.mavenagi.com/blog/ai-customer-service-software-autonomous-resolution" target="_blank" rel="noopener"><span class="lkt">Best AI software for autonomous resolution</span><span class="lkd">Why one reasoning engine across chat, email and voice beats channel by channel bots.</span><span class="lka">&#8599;</span></a></div></div>
+  </div>
+  <div class="group"><div class="gh">For security, finance and IT</div></div>
+  <div class="tools"><a class="tool" href="https://www.mavenagi.com/explore/ai-agents-roi-calculator" target="_blank" rel="noopener"><span class="for">Finance / Ops</span><strong>ROI calculator</strong><span>Plug in Crexi's volumes and cost per case.</span></a><a class="tool" href="https://trust.mavenagi.com/" target="_blank" rel="noopener"><span class="for">Security</span><strong>Trust Center</strong><span>SOC 2, ISO and the full certification list.</span></a><a class="tool" href="https://www.mavenagi.com/apps" target="_blank" rel="noopener"><span class="for">IT / Ops</span><strong>Maven Apps &amp; integrations</strong><span>Every out of the box connector, including Salesforce, HubSpot, Slack and Zendesk.</span></a><a class="tool" href="https://www.mavenagi.com/product/agent-maven" target="_blank" rel="noopener"><span class="for">Engineering</span><strong>Agent Maven</strong><span>The autonomous agent itself: how it reasons, retrieves and takes action on every channel.</span></a><a class="tool" href="https://mavenagi.featurebase.app/changelog" target="_blank" rel="noopener"><span class="for">Everyone</span><strong>Release notes</strong><span>What shipped recently.</span></a><a class="tool" href="https://www.mavenagi.com/resources/the-agentic-list-2026" target="_blank" rel="noopener"><span class="for">Leadership</span><strong>The Agentic List 2026</strong><span>Maven named one of nine companies in the CX Agents category.</span></a><a class="tool" href="https://www.mavenagi.com/resources" target="_blank" rel="noopener"><span class="for">Everyone</span><strong>All resources</strong><span>Everything else Maven publishes: research, guides and case studies.</span></a></div>
+</section>
+
+<section id="next">
+  <div class="next">
+    <div class="deco3"><i style="right:188px;top:10px;width:10px;height:10px;background:var(--teal)"></i><i style="right:160px;top:0;width:14px;height:14px;background:var(--orange)"></i><i style="right:130px;top:8px;width:16px;height:16px;background:var(--purple-l)"></i><i style="right:96px;top:0;width:22px;height:24px;background:var(--purple)"></i><i style="right:52px;top:0;width:34px;height:36px;background:var(--purple-d)"></i><i style="right:0;top:0;width:44px;height:26px;background:var(--purple)"></i><i style="right:0;top:26px;width:68px;height:22px;background:var(--purple-d)"></i></div>
+    <h2>Next steps</h2>
+    <p class="s">Whenever you're ready. Nothing here needs a decision first.</p>
+    <div class="g">
+      <div class="st"><span class="n">1</span><h4>A live session with your leadership</h4><p>Thirty minutes on after hours voice and the Salesforce copilot, with room for questions. We're happy to come to Los Angeles for it.</p></div>
+      <div class="st"><span class="n">2</span><h4>Security and legal in parallel</h4><p>The Trust Center has what your security team needs, and we can start an MSA review whenever it suits you.</p></div>
+      <div class="st"><span class="n">3</span><h4>Test it on your own questions</h4><p>A two week validation on 100 of your real support questions, with a midpoint review, before anything is signed.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div><b>Questions, any time.</b> Tanya Haghighi, Enterprise Account Executive, Maven AGI &middot; thaghighi@mavenagi.com &middot; 925-822-8255</div>
+  <div>Every link is public on mavenagi.com. Results are as published by each customer.</div>
+</footer>
+</main>
+
+<div class="rl"><button id="rlbtn">Reading list (0)</button></div>
+<div class="panel" id="panel"><h4>Your reading list</h4><p class="s">Saved in this browser. Copy the block below to share it with the team.</p><ol id="items"></ol><textarea id="copy" readonly></textarea></div>
+
+<script>
+let list={}; try{list=JSON.parse(localStorage.getItem("crexi-hub")||"{}")}catch(e){list={}}
+const save=()=>{try{localStorage.setItem("crexi-hub",JSON.stringify(list))}catch(e){}};
+document.querySelectorAll(".shead").forEach(h=>h.onclick=()=>{
+  const s=h.parentElement,open=s.classList.toggle("open");
+  h.setAttribute("aria-expanded",open); h.querySelector(".sx").textContent=open?"\u2212":"+";
+});
+function paint(){
+  const k=Object.keys(list);
+  document.getElementById("rlbtn").textContent=`Reading list (${k.length})`;
+  document.getElementById("items").innerHTML=k.length?k.map(u=>`<li><a href="${u}" target="_blank" rel="noopener">${list[u]}</a><button data-rm="${u}">remove</button></li>`).join(""):'<li style="list-style:none;color:var(--ink50)">Nothing yet. Add a story from the Proof section.</li>';
+  document.getElementById("copy").value=k.map(u=>`${list[u]}\n${u}`).join("\n\n");
+  document.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{delete list[b.dataset.rm];save();paint()});
+  document.querySelectorAll("[data-save]").forEach(b=>{const on=!!list[b.dataset.save];b.classList.toggle("on",on);b.textContent=on?"\u2713 On your reading list":"+ Add to reading list";});
+}
+document.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>{const u=b.dataset.save;if(list[u])delete list[u];else list[u]=b.dataset.label;save();paint()});
+document.getElementById("rlbtn").onclick=()=>document.getElementById("panel").classList.toggle("on");
+(function(){
+  const p=document.getElementById("pct"),pv=document.getElementById("pctv"),c=document.getElementById("calls"),w=document.getElementById("week"),d=document.getElementById("day");
+  const n=x=>x.toLocaleString("en-US");
+  const go=()=>{const v=+p.value,yr=Math.round(48000*v/100);pv.textContent=v+"%";c.textContent=n(yr);w.textContent=n(Math.round(yr/52));d.textContent=n(Math.round(yr/365));};
+  p.addEventListener("input",go);go();
+})();
+paint();
+</script>
+</body></html>
